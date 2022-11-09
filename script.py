@@ -6,6 +6,7 @@ SIZE = (480, 720)
 janela = pg.display.set_mode(SIZE)
 pg.display.set_caption('FlappyBugs')
 font = pg.font.SysFont('Bauhaus', 60)
+font2 = pg.font.SysFont('Bauhaus', 40)
 
 #Cor
 WHITE = (255, 255, 255)
@@ -107,7 +108,6 @@ class Gpu(pg.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
-#preparar instancia do pc
 pc = Pc(80, int(SIZE[1] / 2))
 pc_group = pg.sprite.Group()
 pc_group.add(pc)
@@ -115,86 +115,128 @@ ram_group = pg.sprite.Group()
 gpu_group = pg.sprite.Group()
 
 # /////////////////////////////////// GAME ///////////////////////////////////
-rodando = True
-while rodando:
-    pg.time.delay(20)
-    janela.fill(DARKBLUE)
-    
-    if pc.rect.bottom > 720 - chao.get_rect()[3]:
-        jogando = False
-        fim = True
-    
-    pc_group.draw(janela)
-    pc_group.update()
-    ram_group.draw(janela)
-    ram_group.update()
-    gpu_group.draw(janela)
-    gpu_group.update()
+def nivel():
+    global jogando
+    global fim
+    global chao_vel
+    global ram_gap
+    global ram_frequencia
+    global ultima_ram
+    global game_speed
+    global pontos
+    global pontosDisplay
+    global passando
+    #preparar instancia do pc
 
-    #Definir pontos
-    if len(ram_group) > 0:
-        if pc_group.sprites()[0].rect.left > ram_group.sprites()[0].rect.left and pc_group.sprites()[0].rect.right < ram_group.sprites()[0].rect.right + 6 and passando == False:
-            passando = True
-        if passando == True:
-            if pc_group.sprites()[0].rect.left > ram_group.sprites()[0].rect.right:
-                pontos += 1
-                passando = False
+    rodando = True
+    while rodando:
+        pg.time.delay(20)
+        janela.fill(DARKBLUE)
 
-    if pontos > pontosDisplay:
-        pontosDisplay += 1
-    
-    # text(str(pontosDisplay), font, WHITE, SIZE[0] / 2, 20)
-    textPoints = str(pontosDisplay)
-    texto = font.render(textPoints, True, WHITE)
-    text_rect = texto.get_rect(center=(SIZE[0]/2, 40))
-    janela.blit(texto, text_rect)
-    
-    #Colisoes por grupos {  if pc_group collider with ram_group or pc collider with cellin :
-    #                           fim de jogo  }
-    if pg.sprite.groupcollide(pc_group, ram_group, False, False) or pc.rect.top < 0:
-        jogando = False
-        fim = True        
-    
-    #Colisoes por grupos {  if pc_group collider with gpu_group or pc collider with cellin :
-    #                           fim de jogo  }
-    if pg.sprite.groupcollide(pc_group, gpu_group, False, True):
-        pontos += 5
-    
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            rodando = False
-    if pg.key.get_pressed()[pg.K_SPACE] and jogando == False and fim == False:
-        jogando = True
-    if pg.key.get_pressed()[pg.K_SPACE] and jogando == True and fim == True:
-        jogando = True
-        
-    janela.blit(chao, (chao_vel, 720 - chao.get_rect()[3]))
-    if fim == False:
-        
-        #gerador de obstaculos
-        if jogando:
-            time = pg.time.get_ticks()
-            if time - ultima_ram > ram_frequencia:
-                ram_altura = random.randint(-100, 100)
-                btnRam = Ram(480, int(SIZE[0]/1.3 + ram_altura), 1)
-                topRam = Ram(480, int(SIZE[0]/1.3 + ram_altura), -1)
-                a = random.randint(0, 100)
-                if a > 80:
-                    gpu = Gpu(490, int(SIZE[0]/1.3 + ram_altura))
-                    gpu_group.add(gpu)
-                ram_group.add(btnRam) 
-                ram_group.add(topRam)
-                ultima_ram = time
-        
-        chao_vel -= game_speed
-        if chao_vel < -chao.get_rect()[2] / 2:
-            chao_vel = 0 
-    
-    if fim == True:
-        if pg.key.get_pressed()[pg.K_r]:
-            fim = False
-            pontosDisplay = 0
-            pontos = restart()
-    
-    pg.display.flip()
+        if pc.rect.bottom > 720 - chao.get_rect()[3]:
+            jogando = False
+            fim = True
+
+        pc_group.draw(janela)
+        pc_group.update()
+        ram_group.draw(janela)
+        ram_group.update()
+        gpu_group.draw(janela)
+        gpu_group.update()
+
+        #Definir pontos
+        if len(ram_group) > 0:
+            if pc_group.sprites()[0].rect.left > ram_group.sprites()[0].rect.left and pc_group.sprites()[0].rect.right < ram_group.sprites()[0].rect.right + 6 and passando == False:
+                passando = True
+            if passando == True:
+                if pc_group.sprites()[0].rect.left > ram_group.sprites()[0].rect.right:
+                    pontos += 1
+                    passando = False
+
+        if pontos > pontosDisplay:
+            pontosDisplay += 1
+
+        # text(str(pontosDisplay), font, WHITE, SIZE[0] / 2, 20)
+        textPoints = str(pontosDisplay)
+        texto = font.render(textPoints, True, WHITE)
+        text_rect = texto.get_rect(center=(SIZE[0]/2, 40))
+        janela.blit(texto, text_rect)
+
+        #Colisoes por grupos {  if pc_group collider with ram_group or pc collider with cellin :
+        #                           fim de jogo  }
+        if pg.sprite.groupcollide(pc_group, ram_group, False, False) or pc.rect.top < 0:
+            jogando = False
+            fim = True        
+
+        #Colisoes por grupos {  if pc_group collider with gpu_group or pc collider with cellin :
+        #                           fim de jogo  }
+        if pg.sprite.groupcollide(pc_group, gpu_group, False, True):
+            pontos += 5
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                rodando = False
+                pg.quit()
+                quit()
+        if pg.key.get_pressed()[pg.K_SPACE] and jogando == False and fim == False:
+            jogando = True
+        if pg.key.get_pressed()[pg.K_SPACE] and jogando == True and fim == True:
+            jogando = True
+
+        janela.blit(chao, (chao_vel, 720 - chao.get_rect()[3]))
+        if fim == False:
+
+            #gerador de obstaculos
+            if jogando:
+                time = pg.time.get_ticks()
+                if time - ultima_ram > ram_frequencia:
+                    ram_altura = random.randint(-100, 100)
+                    btnRam = Ram(480, int(SIZE[0]/1.3 + ram_altura), 1)
+                    topRam = Ram(480, int(SIZE[0]/1.3 + ram_altura), -1)
+                    a = random.randint(0, 100)
+                    if a > 80:
+                        gpu = Gpu(490, int(SIZE[0]/1.3 + ram_altura))
+                        gpu_group.add(gpu)
+                    ram_group.add(btnRam) 
+                    ram_group.add(topRam)
+                    ultima_ram = time
+
+            chao_vel -= game_speed
+            if chao_vel < -chao.get_rect()[2] / 2:
+                chao_vel = 0 
+
+        if fim == True:
+            if pg.key.get_pressed()[pg.K_r]:
+                fim = False
+                pontosDisplay = 0
+                pontos = restart()
+
+        pg.display.flip()
+
+def menu():
+    rodando = True
+    time = 0
+    while rodando:
+        pg.time.delay(20)
+        janela.fill(DARKBLUE)
+        mouse = pg.mouse.get_pos()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                rodando = False
+                pg.quit()
+                quit()
+            if mouse[0] > 170 and mouse[0] < 310 and mouse[1] > 340 and mouse[1] < 382:
+                if event.type == pg.MOUSEBUTTONUP:
+                    nivel()
+        button = pg.draw.rect(janela,(255, 255, 255), ((SIZE[0]/2-70, SIZE[1]/2-20), (140, 40)))
+        texto = font2.render('Jogar', True, (0, 0, 0))
+        text_rect = texto.get_rect(center=(SIZE[0]/2, SIZE[1]/2))
+        janela.blit(texto, text_rect)
+
+        titulo = font.render('FlappyBugs', True, WHITE)
+        text_rect1 = titulo.get_rect(center=(SIZE[0]/2, 40))
+        janela.blit(titulo, text_rect1)
+
+        pg.display.flip()
+menu()
 pg.quit()
