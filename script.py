@@ -196,5 +196,5 @@ while rodando:
             pontosDisplay = 0
             pontos = restart()
     
-    pg.display.update()
+    pg.display.flip()
 pg.quit()
