@@ -3,7 +3,7 @@ import pygame as pg
 
 pg.init()
 SIZE = (480, 720)
-janela = pg.display.set_mode(SIZE)
+janela = pg.display.set_mode(SIZE, (pg.SCALED | pg.RESIZABLE), 1, 0, 1)
 pg.display.set_caption('FlappyBugs')
 font = pg.font.SysFont('Bauhaus', 60)
 font2 = pg.font.SysFont('Bauhaus', 40)
