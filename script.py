@@ -1,9 +1,10 @@
 import random
 import pygame as pg
+from pathlib import Path
 
 pg.init()
-SIZE = (480, 720)
-janela = pg.display.set_mode(SIZE, (pg.SCALED | pg.RESIZABLE), 1, 0, 1)
+SIZE = (460, 700)
+janela = pg.display.set_mode(SIZE, (pg.SCALED | pg.RESIZABLE), 0, 0, 0)
 pg.display.set_caption('FlappyBugs')
 font = pg.font.SysFont('Bauhaus', 60)
 font2 = pg.font.SysFont('Bauhaus', 40)
@@ -24,6 +25,17 @@ game_speed = 5
 pontos = 0
 pontosDisplay = 0
 passando = False
+musics = ["music/Captain Scurvy.mp3", "music/Mighty Like Us.mp3", "music/The Builder.mp3"]
+music = pg.mixer.music.load(musics[random.randint(0,2)])
+SFX = {
+    0 : pg.mixer.Sound("music/jump.wav"),
+    1 : pg.mixer.Sound("music/hitHurt.wav"),
+    2 : pg.mixer.Sound("music/pass.wav"),
+    3 : pg.mixer.Sound("music/pickup.wav")
+}
+for i in SFX:
+    SFX[i].set_volume(0.3)
+pg.mixer.music.set_volume(0.3)
 
 #imagens
 chao = pg.image.load('chao.png')
@@ -41,6 +53,9 @@ def restart():
     pc.vel = 0
     pc.image = pg.transform.rotate(pc.imagem, 0)
     score = 0
+    global music
+    music = pg.mixer.music.load(musics[random.randint(0,2)])
+    pg.mixer.music.play(-1)
     return score
 
 #Definir objeto pc
@@ -62,8 +77,8 @@ class Pc(pg.sprite.Sprite):
             if jogando == True:
                 #cair
                 self.vel += 0.8
-                if self.vel > 10:
-                    self.vel = 10
+                if self.vel > 15:
+                    self.vel = 15
                 if self.rect.bottom < 720 - chao.get_rect()[3]:
                     self.rect.y += int(self.vel)
                     
@@ -71,6 +86,7 @@ class Pc(pg.sprite.Sprite):
             if pg.key.get_pressed()[pg.K_SPACE] and not self.jumped:
                 self.jumped = True
                 self.vel = -10
+                SFX[0].play()
             if not pg.key.get_pressed()[pg.K_SPACE]:
                 self.jumped = False
             
@@ -130,10 +146,12 @@ def nivel():
 
     rodando = True
     while rodando:
-        pg.time.delay(20)
+        pg.time.Clock().tick(60)
         janela.fill(DARKBLUE)
 
         if pc.rect.bottom > 720 - chao.get_rect()[3]:
+            if jogando:
+                SFX[1].play()
             jogando = False
             fim = True
 
@@ -150,6 +168,7 @@ def nivel():
                 passando = True
             if passando == True:
                 if pc_group.sprites()[0].rect.left > ram_group.sprites()[0].rect.right:
+                    SFX[2].play()
                     pontos += 1
                     passando = False
 
@@ -165,12 +184,15 @@ def nivel():
         #Colisoes por grupos {  if pc_group collider with ram_group or pc collider with cellin :
         #                           fim de jogo  }
         if pg.sprite.groupcollide(pc_group, ram_group, False, False) or pc.rect.top < 0:
+            if jogando:
+                SFX[1].play()
             jogando = False
-            fim = True        
+            fim = True     
 
         #Colisoes por grupos {  if pc_group collider with gpu_group or pc collider with cellin :
         #                           fim de jogo  }
         if pg.sprite.groupcollide(pc_group, gpu_group, False, True):
+            SFX[3].play()
             pontos += 5
 
         for event in pg.event.get():
@@ -216,8 +238,11 @@ def nivel():
 def menu():
     rodando = True
     time = 0
+    global music
+    music = pg.mixer.music.load(musics[random.randint(0,2)])
+    pg.mixer.music.play(-1)
     while rodando:
-        pg.time.delay(20)
+        pg.time.Clock().tick(60)
         janela.fill(DARKBLUE)
         mouse = pg.mouse.get_pos()
         for event in pg.event.get():
