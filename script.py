@@ -6,6 +6,7 @@ pg.init()
 SIZE = (460, 700)
 janela = pg.display.set_mode(SIZE, (pg.SCALED | pg.RESIZABLE), 0, 0, 0)
 pg.display.set_caption('FlappyBugs')
+pg.display.set_icon(pg.image.load('pc.png'))
 font = pg.font.SysFont('Bauhaus', 60)
 font2 = pg.font.SysFont('Bauhaus', 40)
 
