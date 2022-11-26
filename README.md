@@ -21,6 +21,11 @@ Para criar um ambiente virutal basta usar este código:<br>
 python -m venv <nome do ambiente>
 ```
 
+#### Problema de som no windows
+
+Por algum motivo a biblioteca não reproduz a música no windows caso esteja no formato MP3, ao menos no computador que eu use para testar, mas quando coloquei em formato WAV, reproduziu sem erros.<br>
+Não coloquei essa mudança no código final por não ser necessário, já que ao compilar, o jogo vai ser apenas um executável, independente do formato dos arquivos, eu acho...
+
 <br>
 
 #### Sobre
